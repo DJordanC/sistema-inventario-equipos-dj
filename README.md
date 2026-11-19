@@ -1,66 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🖥️ SIE - DJ | Sistema de Inventarios de Equipos
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-10.x-red?style=flat-square&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.2-blue?style=flat-square&logo=php)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14+-blue?style=flat-square&logo=postgresql)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-purple?style=flat-square&logo=bootstrap)
 
-## About Laravel
+**SIE - DJ** Su objetivo es automatizar el control de bienes informáticos y la asignación de equipos a las diferentes oficinas de una institución, garantizando la trazabilidad, la integridad de los datos y una experiencia de usuario moderna.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Características Principales (Alcance Funcional)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+El sistema cumple con los 4 módulos solicitados en el enunciado:
 
-## Learning Laravel
+### 🔐 Módulo 1: Autenticación y Control de Acceso (RBAC)
+*   Implementación de Login y Registro nativo con **Laravel Fortify**.
+*   **Dos roles definidos:** `Administrador` (Soporte Técnico) y `Solicitante` (Jefe de Oficina).
+*   Protección de rutas mediante **Middlewares** personalizados (`VerificarRolUsuario`).
+*   Redirección dinámica a Dashboards específicos según el rol del usuario.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 📦 Módulo 2: Gestión de Inventario (CRUD Completo)
+*   Registro, edición, visualización y eliminación lógica (**Soft Deletes**) de equipos.
+*   Validación cruzada: El código patrimonial debe coincidir con el prefijo de la categoría (Ej: `LAP-001` para Laptops).
+*   Formularios dinámicos: Los campos de CPU, RAM y Almacenamiento se ocultan automáticamente si el equipo es una impresora o monitor.
+*   Gestión de estados: `Disponible`, `Asignado` y `En Mantenimiento`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 🔄 Módulo 3: Solicitud y Despacho de Equipos (Proceso Central)
+*   El **Solicitante** crea peticiones seleccionando categoría, cantidad, oficina y justificación.
+*   El **Administrador** visualiza solicitudes pendientes, aprueba o rechaza.
+*   **Asignación Transaccional:** Al aprobar, el administrador selecciona los equipos exactos (por código patrimonial). Todo ocurre dentro de un `DB::transaction` (atomicidad), asegurando que si no hay stock suficiente, la operación se cancele por completo.
+*   Cambio automático de estado del equipo a `Asignado` y registro histórico (fecha y hora).
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 📊 Módulo 4: Reportes y Consultas Avanzadas
+*   **Dashboard Administrador:** Indicadores en tiempo real (Disponibles, Asignados, Mantenimiento, Solicitudes Pendientes) y gráficos interactivos con Chart.js.
+*   **Reporte de Asignaciones:** Historial detallado filtrado por oficina, utilizando **Eager Loading** (`with()`) para evitar el problema de consultas N+1.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Tecnologías Utilizadas
 
-### Premium Partners
+*   **Backend:** PHP 8.2 / Laravel 10
+*   **Base de Datos:** PostgreSQL (Uso de `ENUM`, `CHECK`, `FOREIGN KEY` e índices).
+*   **Frontend:** Blade Components + Bootstrap 5 (vía CDN) + SweetAlert2.
+*   **JavaScript:** Vanilla JS (Lógica de formularios dinámicos y validaciones en tiempo real).
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+---
 
-## Contributing
+## 🏗️ Arquitectura y Criterios de Evaluación Cumplidos
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+*   **Form Requests:** Separación de la lógica de validación (`GuardarEquipoRequest`, `AprobarSolicitudRequest`, etc.).
+*   **Transacciones en BD:** Uso de `DB::transaction` en el `ServicioAprobacionSolicitud`.
+*   **Optimización:** Eager Loading (`with()`) en todos los listados y reportes.
+*   **Componentes Blade:** Creación y reutilización de `<x-alerta>`, `<x-boton>`, `<x-etiqueta>`, `<x-modal>`.
+*   **Cross-Platform:** Archivos `.gitattributes` y `.editorconfig` para asegurar compatibilidad entre Windows y Linux.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🚀 Instalación y Configuración Local
 
-## Security Vulnerabilities
+### Requisitos Previos
+*   PHP >= 8.2 (con extensión `pdo_pgsql` habilitada)
+*   Composer instalado
+*   PostgreSQL instalado y en ejecución
+*   Git
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Paso a paso
 
-## License
+1. **Clonar el repositorio:**
+   ```bash
+   git clone https://github.com/DjorDanC/sistema-inventario-equipos-dj.git
+   cd sistema-inventario-equipos-dj
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+2. **Instalar dependencias de PHP:**
+    composer install
+
+3. **Configurar variables de entorno:**
+    cp .env.example .env
+
+    DB_CONNECTION=pgsql
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    DB_DATABASE=sie
+    DB_USERNAME=tu_usuario
+    DB_PASSWORD=tu_contraseña
+
+4. **Iniciar el servidor local:**
+    php artisan serve
+    
+    http://127.0.0.1:8000
+
+## 🌿 Flujo de Trabajo (GitFlow)
+El proyecto fue desarrollado siguiendo la metodología GitFlow:
+
+**main:** Código estable y listo para producción.
+
+**develop:** Rama de integración de nuevas características.
+
+**feature/inventario-solicitudes:** Rama utilizada para el desarrollo de los módulos principales.
+
+
+## 👨‍💻 Autor
+DjorDanC - Desarrollo completo, diseño de BD y UI/UX.
