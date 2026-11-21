@@ -27,6 +27,23 @@ Route::get('/dashboard', function () {
     return redirect()->route('solicitante.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
+// Ruta global para notificaciones
+Route::middleware(['auth'])->get('/api/notificaciones', function () {
+    $user = auth()->user();
+    
+    if ($user->rol->value === 'administrador') {
+        // Admin: Cuenta las solicitudes pendientes
+        $count = \App\Models\Solicitud::where('estado', 'pendiente')->count();
+    } else {
+        // Solicitante: Cuenta sus solicitudes que ya fueron respondidas (aprobadas o rechazadas)
+        $count = \App\Models\Solicitud::where('usuario_id', $user->id)
+            ->whereIn('estado', ['aprobada', 'rechazada'])
+            ->count();
+    }
+    
+    return response()->json(['count' => $count]);
+})->name('api.notificaciones');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -46,9 +63,15 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     Route::get('/solicitudes/{solicitud}', [AdminSolicitudController::class, 'show'])->name('solicitudes.show');
     Route::post('/solicitudes/{solicitud}/aprobar', [AdminSolicitudController::class, 'aprobar'])->name('solicitudes.aprobar');
     Route::post('/solicitudes/{solicitud}/rechazar', [AdminSolicitudController::class, 'rechazar'])->name('solicitudes.rechazar');
-
+    Route::resource('equipos', EquipoController::class);
+    Route::resource('usuarios', \App\Http\Controllers\Admin\UsuarioController::class)->except(['show']);
+   
     // Módulo de Reportes
     Route::get('/reportes/asignaciones', [ReporteController::class, 'asignacionesPorOficina'])->name('reportes.asignaciones');
+    Route::get('/reportes/asignaciones', [\App\Http\Controllers\ReporteController::class, 'asignacionesPorOficina'])->name('reportes.asignaciones');
+    Route::get('/reportes/asignaciones/exportar-csv', [\App\Http\Controllers\ReporteController::class, 'exportarCSV'])->name('reportes.exportar.csv'); 
+
+
     
 });
 

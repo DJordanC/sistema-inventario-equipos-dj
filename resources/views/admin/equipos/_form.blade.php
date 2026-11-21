@@ -1,5 +1,5 @@
 <div class="row">
-    <!-- 1. PRIMERO LA CATEGORÍA -->
+    <!-- 1. CATEGORÍA -->
     <div class="col-md-6 mb-3">
         <label class="form-label">Categoría</label>
         <select name="categoria_id" id="categoria_id" class="form-select" required>
@@ -12,12 +12,12 @@
         </select>
     </div>
 
-    <!-- 2. CÓDIGO PATRIMONIAL -->
+    <!-- 2. CÓDIGO -->
     <div class="col-md-6 mb-3">
         <label class="form-label">Código Patrimonial</label>
         <input type="text" name="codigo_patrimonial" id="codigo_patrimonial" class="form-control" 
-                value="{{ old('codigo_patrimonial', $equipo->codigo_patrimonial ?? '') }}" 
-                placeholder="Ej: EQ-001" required>
+               value="{{ old('codigo_patrimonial', $equipo->codigo_patrimonial ?? '') }}" 
+               placeholder="Ej: EQ-001" required>
         <div class="form-text text-muted small" id="ayuda-codigo">Ingrese el código único del equipo.</div>
     </div>
     
@@ -31,7 +31,7 @@
         <input type="text" name="modelo" class="form-control" value="{{ old('modelo', $equipo->modelo ?? '') }}" required>
     </div>
 
-    <!-- 3. COMPONENTES (Se ocultan dinámicamente) -->
+    <!-- 3. COMPONENTES -->
     <div class="col-12" id="contenedor-componentes" style="display: none;">
         <div class="row">
             <div class="col-md-4 mb-3">
@@ -49,8 +49,8 @@
         </div>
     </div>
 
-    <!-- 4. ESTADO -->
-    <div class="col-md-12 mb-3">
+    <!-- 4. ESTADO Y NOTAS -->
+    <div class="col-md-6 mb-3">
         <label class="form-label">Estado</label>
         <select name="estado" id="estado" class="form-select" required>
             <option value="disponible" {{ old('estado', $equipo->estado->value ?? '') == 'disponible' ? 'selected' : '' }}>Disponible</option>
@@ -59,14 +59,20 @@
         </select>
     </div>
 
-    <!-- 5. SELECCIÓN DE OFICINA (Se muestra dinámicamente si el estado es Asignado) -->
+    <!-- Campo de Notas (Se muestra dinámicamente) -->
+    <div class="col-md-6 mb-3" id="contenedor-notas" style="display: none;">
+        <label class="form-label fw-bold text-warning" id="label-notas">Notas del Cambio</label>
+        <input type="text" name="notas_estado" class="form-control border-warning" 
+               placeholder="Ej: Cambio de pasta térmica, revisión de hardware...">
+    </div>
+
+    <!-- 5. SELECCIÓN DE OFICINA -->
     <div class="col-12 mb-3" id="info-asignacion" style="display: none;">
         <div class="alert alert-primary bg-primary bg-opacity-10 border-primary border-opacity-25">
             <h6 class="fw-bold text-primary mb-3"><i class="bi bi-building"></i> Asignación de Oficina</h6>
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <label class="form-label fw-bold">Seleccione la Oficina / Departamento</label>
-                    <!-- IMPORTANTE: Aquí cargamos todas las oficinas sin importar si ya tenía una asignación -->
                     <select name="oficina_id" id="oficina_id" class="form-select border-primary">
                         <option value="">Seleccione una oficina...</option>
                         @foreach($oficinas as $oficina)
@@ -77,14 +83,6 @@
                         @endforeach
                     </select>
                 </div>
-                @if(isset($equipo) && $equipo->asignacionActiva)
-                <div class="col-md-6 mt-3 mt-md-0">
-                    <small class="text-muted d-block">Asignado originalmente el:</small>
-                    <strong>{{ $equipo->asignacionActiva->asignado_en->format('d/m/Y h:i A') }}</strong>
-                    <br>
-                    <small class="text-muted">Solicitante: {{ $equipo->asignacionActiva->solicitud->usuario->nombre }}</small>
-                </div>
-                @endif
             </div>
         </div>
     </div>
@@ -104,18 +102,9 @@
         const selectEstado = document.getElementById('estado');
         const infoAsignacion = document.getElementById('info-asignacion');
         const selectOficina = document.getElementById('oficina_id');
-
-        // FORZAR MAYÚSCULAS EN TIEMPO REAL
-        const inputsTexto = [inputCodigo, document.querySelector('input[name="marca"]'), document.querySelector('input[name="modelo"]'), inputCpu, inputRam, inputAlmacenamiento];
-        inputsTexto.forEach(input => {
-            if(input) {
-                input.addEventListener('input', function(e) {
-                    let cursorPosition = this.selectionStart;
-                    this.value = this.value.toUpperCase();
-                    this.setSelectionRange(cursorPosition, cursorPosition);
-                });
-            }
-        });
+        
+        const contenedorNotas = document.getElementById('contenedor-notas');
+        const labelNotas = document.getElementById('label-notas');
 
         function obtenerPrefijo(nombreCategoria) {
             if (nombreCategoria.includes('laptop')) return 'LAP';
@@ -133,7 +122,6 @@
             if (nombreCategoria.includes('impresora') || nombreCategoria.includes('monitor')) {
                 contenedorComponentes.style.display = 'none';
                 inputCpu.disabled = true; inputRam.disabled = true; inputAlmacenamiento.disabled = true;
-                inputCpu.value = ''; inputRam.value = ''; inputAlmacenamiento.value = '';
             } else {
                 contenedorComponentes.style.display = 'block';
                 inputCpu.disabled = false; inputRam.disabled = false; inputAlmacenamiento.disabled = false;
@@ -144,6 +132,7 @@
         }
 
         function actualizarEstado() {
+            // 1. Lógica para Asignación
             if (selectEstado.value === 'asignado') {
                 infoAsignacion.style.display = 'block';
                 if(selectOficina) selectOficina.required = true;
@@ -153,6 +142,14 @@
                     selectOficina.required = false;
                     selectOficina.value = ''; 
                 }
+            }
+
+            // 2. Lógica para Notas (Mantenimiento o Reparación)
+            if (selectEstado.value === 'en_mantenimiento') {
+                contenedorNotas.style.display = 'block';
+                labelNotas.textContent = 'Motivo del Mantenimiento';
+            } else {
+                contenedorNotas.style.display = 'none';
             }
         }
 

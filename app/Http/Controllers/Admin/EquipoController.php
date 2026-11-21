@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Equipo;
 use App\Models\Categoria;
-use App\Models\Oficina; // <--- AQUÍ ESTABA FALTANDO LA IMPORTACIÓN
+use App\Models\Oficina;
 use App\Models\Solicitud;
 use App\Models\Asignacion;
 use App\Models\RegistroEstadoEquipo;
@@ -28,13 +28,22 @@ class EquipoController extends Controller
     public function create()
     {
         $categorias = Categoria::all();
-        $oficinas = Oficina::all(); // Ahora sí encontrará la clase
+        $oficinas = Oficina::all();
         return view('admin.equipos.create', compact('categorias', 'oficinas'));
     }
 
     public function store(GuardarEquipoRequest $request)
     {
         $equipo = Equipo::create($request->validated());
+
+        // Registrar el estado inicial en el historial
+        RegistroEstadoEquipo::create([
+            'equipo_id' => $equipo->id,
+            'estado_desde' => null,
+            'estado_hasta' => $equipo->estado->value,
+            'cambiado_por' => Auth::id(),
+            'notas' => 'Registro inicial del equipo en el inventario.'
+        ]);
 
         if ($request->estado === 'asignado' && $request->oficina_id) {
             $this->asignarEquipo($equipo, $request->oficina_id);
@@ -48,7 +57,8 @@ class EquipoController extends Controller
         $equipo->load([
             'categoria', 
             'asignacionActiva.solicitud.oficina', 
-            'asignacionActiva.solicitud.usuario'
+            'asignacionActiva.solicitud.usuario',
+            'registrosEstado.cambiadoPor' // Cargamos el historial para mostrarlo en la vista
         ]);
         return view('admin.equipos.show', compact('equipo'));
     }
@@ -62,7 +72,7 @@ class EquipoController extends Controller
         ]);
         
         $categorias = Categoria::all();
-        $oficinas = Oficina::all(); // Ahora sí encontrará la clase
+        $oficinas = Oficina::all();
         
         return view('admin.equipos.edit', compact('equipo', 'categorias', 'oficinas'));
     }
@@ -72,6 +82,18 @@ class EquipoController extends Controller
         $estadoAnterior = $equipo->estado->value;
         $equipo->update($request->validated());
 
+        // Si el estado cambió, registrar en el historial con las notas
+        if ($estadoAnterior !== $equipo->estado->value || $request->filled('notas_estado')) {
+            RegistroEstadoEquipo::create([
+                'equipo_id' => $equipo->id,
+                'estado_desde' => $estadoAnterior,
+                'estado_hasta' => $equipo->estado->value,
+                'cambiado_por' => Auth::id(),
+                'notas' => $request->notas_estado ?? 'Actualización de estado.'
+            ]);
+        }
+
+        // Lógica de asignación
         if ($equipo->estado->value === 'asignado') {
             if ($request->oficina_id) {
                 $this->asignarEquipo($equipo, $request->oficina_id);
@@ -81,13 +103,6 @@ class EquipoController extends Controller
                 $asignacion = $equipo->asignacionActiva;
                 if ($asignacion) {
                     $asignacion->update(['devuelto_en' => now()]);
-                    RegistroEstadoEquipo::create([
-                        'equipo_id' => $equipo->id,
-                        'estado_desde' => 'asignado',
-                        'estado_hasta' => $equipo->estado->value,
-                        'cambiado_por' => Auth::id(),
-                        'notas' => 'Equipo liberado mediante edición de inventario'
-                    ]);
                 }
             }
         }
@@ -106,10 +121,8 @@ class EquipoController extends Controller
         $asignacion = $equipo->asignacionActiva;
         
         if ($asignacion) {
-            // Si ya estaba asignado, solo actualizamos la oficina de la solicitud original
             $asignacion->solicitud->update(['oficina_id' => $oficinaId]);
         } else {
-            // Si es nuevo, creamos una solicitud manual y la asignación
             $solicitud = Solicitud::create([
                 'usuario_id' => Auth::id(),
                 'oficina_id' => $oficinaId,
@@ -126,14 +139,6 @@ class EquipoController extends Controller
                 'equipo_id' => $equipo->id,
                 'asignado_por' => Auth::id(),
                 'asignado_en' => now(),
-            ]);
-            
-            RegistroEstadoEquipo::create([
-                'equipo_id' => $equipo->id,
-                'estado_desde' => 'disponible',
-                'estado_hasta' => 'asignado',
-                'cambiado_por' => Auth::id(),
-                'notas' => 'Asignado manualmente desde el inventario'
             ]);
         }
     }
