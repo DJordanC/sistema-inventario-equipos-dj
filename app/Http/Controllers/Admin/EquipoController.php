@@ -18,10 +18,27 @@ class EquipoController extends Controller
     public function index(Request $request)
     {
         $query = Equipo::with('categoria');
+
+        // Filtro por estado (desde el Dashboard)
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
-        $equipos = $query->latest()->paginate(10)->withQueryString();
+
+        // BUSCADOR (Código, Marca o Modelo)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('codigo_patrimonial', 'LIKE', "%{$search}%")
+                  ->orWhere('marca', 'LIKE', "%{$search}%")
+                  ->orWhere('modelo', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // SELECTOR DE REGISTROS POR PÁGINA
+        $perPage = $request->get('per_page', 5); // Por defecto 10
+
+        $equipos = $query->latest()->paginate($perPage)->withQueryString();
+        
         return view('admin.equipos.index', compact('equipos'));
     }
 
@@ -36,7 +53,6 @@ class EquipoController extends Controller
     {
         $equipo = Equipo::create($request->validated());
 
-        // Registrar el estado inicial en el historial
         RegistroEstadoEquipo::create([
             'equipo_id' => $equipo->id,
             'estado_desde' => null,
@@ -58,7 +74,7 @@ class EquipoController extends Controller
             'categoria', 
             'asignacionActiva.solicitud.oficina', 
             'asignacionActiva.solicitud.usuario',
-            'registrosEstado.cambiadoPor' // Cargamos el historial para mostrarlo en la vista
+            'registrosEstado.cambiadoPor'
         ]);
         return view('admin.equipos.show', compact('equipo'));
     }
@@ -82,7 +98,6 @@ class EquipoController extends Controller
         $estadoAnterior = $equipo->estado->value;
         $equipo->update($request->validated());
 
-        // Si el estado cambió, registrar en el historial con las notas
         if ($estadoAnterior !== $equipo->estado->value || $request->filled('notas_estado')) {
             RegistroEstadoEquipo::create([
                 'equipo_id' => $equipo->id,
@@ -93,7 +108,6 @@ class EquipoController extends Controller
             ]);
         }
 
-        // Lógica de asignación
         if ($equipo->estado->value === 'asignado') {
             if ($request->oficina_id) {
                 $this->asignarEquipo($equipo, $request->oficina_id);

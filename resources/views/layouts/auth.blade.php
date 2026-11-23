@@ -117,7 +117,7 @@
                 
                 <!-- Footer -->
                 <div class="text-center mt-4">
-                    <small class="text-secondary">&copy; {{ date('Y') }} Departamento de Soporte Técnico.</small>
+                    <small class="text-secondary">&copy; {{ date('Y') }} Departamento de Soporte Técnico DJ.</small>
                 </div>
             </div>
         </div>

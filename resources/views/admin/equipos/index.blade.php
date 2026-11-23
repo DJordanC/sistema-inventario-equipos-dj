@@ -3,8 +3,8 @@
 
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Inventario de Equipos</h2>
-    <a href="{{ route('admin.equipos.create') }}" class="btn btn-primary">
+    <h2 class="fw-bold">Inventario de Equipos</h2>
+    <a href="{{ route('admin.equipos.create') }}" class="btn btn-primary shadow-sm">
         <i class="bi bi-plus-lg"></i> Nuevo Equipo
     </a>
 </div>
@@ -13,9 +13,8 @@
     <x-alerta tipo="success">{{ session('success') }}</x-alerta>
 @endif
 
-<!-- Aviso de Filtro Activo -->
 @if(request('estado'))
-    <div class="alert alert-info d-flex justify-content-between align-items-center shadow-sm">
+    <div class="alert alert-info d-flex justify-content-between align-items-center shadow-sm border-0">
         <span>
             <i class="bi bi-funnel-fill me-1"></i> Mostrando equipos en estado: 
             <strong class="text-uppercase">{{ str_replace('_', ' ', request('estado')) }}</strong>
@@ -26,27 +25,62 @@
     </div>
 @endif
 
-<div class="card shadow-sm">
+<!-- BARRA DE BÚSQUEDA Y FILTROS -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form action="{{ route('admin.equipos.index') }}" method="GET" class="row g-3 align-items-center">
+            <!-- Conservar el filtro de estado si viene del dashboard -->
+            @if(request('estado'))
+                <input type="hidden" name="estado" value="{{ request('estado') }}">
+            @endif
+
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0" 
+                           placeholder="Buscar por código, marca o modelo..." value="{{ request('search') }}">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <select name="per_page" class="form-select" onchange="this.form.submit()">
+                    <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5 registros por página</option>
+                    <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 registros por página</option>
+                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20 registros por página</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                @if(request()->anyFilled(['search', 'per_page']))
+                    <a href="{{ route('admin.equipos.index') }}" class="btn btn-outline-danger w-100">Limpiar</a>
+                @endif
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0 text-nowrap">
+            <table class="table table-hover mb-0 text-nowrap align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Código Patrimonial</th>
+                        <th class="ps-4">Código Patrimonial</th>
                         <th>Marca / Modelo</th>
                         <th>Categoría</th>
                         <th>Estado</th>
-                        <th class="text-end">Acciones</th>
+                        <th class="text-end pe-4">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($equipos as $equipo)
                         <tr>
-                            <td><strong>{{ $equipo->codigo_patrimonial }}</strong></td>
+                            <td class="ps-4"><strong>{{ $equipo->codigo_patrimonial }}</strong></td>
                             <td>{{ $equipo->marca }} {{ $equipo->modelo }}</td>
                             <td>{{ $equipo->categoria->nombre }}</td>
                             <td><x-etiqueta :estado="$equipo->estado->value" /></td>
-                            <td class="text-end">
+                            <td class="text-end pe-4">
                                 <a href="{{ route('admin.equipos.show', $equipo) }}" class="btn btn-sm btn-info text-white" title="Ver Detalles">
                                     <i class="bi bi-eye"></i>
                                 </a>
@@ -63,12 +97,28 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center py-4">No hay equipos registrados con estos criterios.</td></tr>
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                No se encontraron equipos con los criterios de búsqueda.
+                            </td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+    
+    <!-- PAGINACIÓN Y CONTADOR EN ESPAÑOL -->
+    @if($equipos->hasPages() || $equipos->total() > 0)
+        <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-3">
+            <small class="text-muted">
+                Mostrando <strong>{{ $equipos->firstItem() ?? 0 }}</strong> a <strong>{{ $equipos->lastItem() ?? 0 }}</strong> de <strong>{{ $equipos->total() }}</strong> resultados
+            </small>
+            <div>
+                {{ $equipos->links() }}
+            </div>
+        </div>
+    @endif
 </div>
-<div class="mt-3">{{ $equipos->links() }}</div>
 @endsection

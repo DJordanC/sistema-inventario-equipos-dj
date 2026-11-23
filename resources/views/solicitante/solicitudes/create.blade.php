@@ -3,19 +3,14 @@
 
 @section('content')
 <div class="row justify-content-center">
-    <!-- Ampliamos un poco el ancho para que quepan 2 columnas -->
-    <div class="col-md-8 col-lg-7">
-        <div class="card shadow-sm border-0">
-            
-            <!-- Encabezado más compacto -->
-            <div class="card-header bg-white pt-4 pb-2 border-0">
-                <h4 class="fw-bold text-success mb-1">
-                    <i class="bi bi-file-earmark-plus"></i> Crear Nueva Solicitud
-                </h4>
-                <p class="text-muted small mb-0">Complete los datos para requerir equipos al departamento de Soporte Técnico.</p>
+    <div class="col-12 col-md-10 col-lg-8">
+        <div class="card card-3d">
+            <div class="card-header bg-white border-0 pt-4 pb-0 text-center rounded-top" style="border-radius: 1rem 1rem 0 0;">
+                <h4 class="fw-bold text-success"><i class="bi bi-file-earmark-plus"></i> Crear Nueva Solicitud</h4>
+                <p class="text-muted small">Complete los datos para requerir equipos al departamento de Soporte Técnico.</p>
             </div>
             
-            <div class="card-body px-4 pb-4 pt-3">
+            <div class="card-body p-4">
                 @if ($errors->any())
                     <x-alerta tipo="danger">
                         <ul class="mb-0">
@@ -29,8 +24,8 @@
                     
                     <!-- Fila 1: Oficina -->
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted text-uppercase">Oficina / Departamento Destino</label>
-                        <select name="oficina_id" class="form-select" required>
+                        <label class="form-label fw-bold text-muted small text-uppercase">Oficina / Departamento Destino</label>
+                        <select name="oficina_id" class="form-select input-3d" required>
                             <option value="">Seleccione la oficina...</option>
                             @foreach($oficinas as $oficina)
                                 <option value="{{ $oficina->id }}" {{ old('oficina_id', Auth::user()->oficina_id) == $oficina->id ? 'selected' : '' }}>
@@ -40,11 +35,11 @@
                         </select>
                     </div>
 
-                    <!-- Fila 2: Categoría (Ocupa 8 columnas) y Cantidad (Ocupa 4 columnas) -->
+                    <!-- Fila 2: Categoría y Cantidad (Aprovechando el espacio) -->
                     <div class="row mb-3">
-                        <div class="col-md-8">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Categoría de Equipo</label>
-                            <select name="categoria_id" class="form-select" required>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Categoría de Equipo</label>
+                            <select name="categoria_id" class="form-select input-3d" required>
                                 <option value="">Seleccione una categoría...</option>
                                 @foreach($categorias as $cat)
                                     <option value="{{ $cat->id }}" {{ old('categoria_id') == $cat->id ? 'selected' : '' }}>
@@ -53,26 +48,23 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold small text-muted text-uppercase">Cantidad</label>
-                            <input type="number" name="cantidad" class="form-control" min="1" value="{{ old('cantidad', 1) }}" required>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label fw-bold text-muted small text-uppercase">Cantidad</label>
+                            <input type="number" name="cantidad" class="form-control input-3d" min="1" value="{{ old('cantidad', 1) }}" required>
                         </div>
                     </div>
 
-                    <!-- Fila 3: Justificación (Reducimos a 2 filas de alto) -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted text-uppercase">Justificación de la solicitud</label>
-                        <textarea name="justificacion" class="form-control" rows="2" required placeholder="Explique brevemente por qué necesita estos equipos...">{{ old('justificacion') }}</textarea>
+                    <!-- Fila 3: Justificación -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-muted small text-uppercase">Justificación de la solicitud</label>
+                        <textarea name="justificacion" class="form-control input-3d" rows="3" required placeholder="Explique brevemente por qué necesita estos equipos...">{{ old('justificacion') }}</textarea>
                     </div>
 
-                    <hr class="my-3">
-
-                    <!-- Botones alineados a la derecha para ahorrar espacio vertical -->
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('solicitante.solicitudes.index') }}" class="btn btn-outline-secondary px-4">
+                        <a href="{{ route('solicitante.solicitudes.index') }}" class="btn btn-light border px-4">
                             Cancelar
                         </a>
-                        <button type="submit" class="btn btn-success px-4">
+                        <button type="submit" class="btn btn-success btn-3d px-4">
                             <i class="bi bi-send"></i> Enviar Solicitud
                         </button>
                     </div>
