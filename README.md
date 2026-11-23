@@ -72,11 +72,13 @@ El sistema cumple con los 4 módulos solicitados en el enunciado:
    cd sistema-inventario-equipos-dj
 
 2. **Instalar dependencias de PHP:**
-    composer install
 
-3. **Configurar variables de entorno:**
-    cp .env.example .env
+   composer install
 
+4. **Configurar variables de entorno:**
+
+   cp .env.example .env
+   ```
     DB_CONNECTION=pgsql
     DB_HOST=127.0.0.1
     DB_PORT=5432
@@ -84,9 +86,9 @@ El sistema cumple con los 4 módulos solicitados en el enunciado:
     DB_USERNAME=tu_usuario
     DB_PASSWORD=tu_contraseña
 
-4. **Iniciar el servidor local:**
+5. **Iniciar el servidor local:**
     php artisan serve
-    
+    ```
     http://127.0.0.1:8000
 
 ## 🌿 Flujo de Trabajo (GitFlow)
