@@ -13,7 +13,7 @@
         </div>
 
         <!-- Tarjeta Principal -->
-        <div class="card shadow-sm border-0 mb-4">
+        <div class="card shadow-sm border-0 mb-4 card-3d">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                 <h5 class="mb-0 fw-bold">Solicitud #{{ $solicitud->id }}</h5>
                 <x-etiqueta :estado="$solicitud->estado->value" />
@@ -85,7 +85,7 @@
                 </div>
             </div>
         @elseif($solicitud->estado->value === 'pendiente')
-            <div class="alert alert-warning shadow-sm border-0">
+            <div class="alert alert-warning shadow-sm border-0 card-3d">
                 <i class="bi bi-clock-history fs-5 me-2"></i>
                 <strong>En espera:</strong> El departamento de Soporte Técnico aún está revisando su solicitud. 
                 Una vez aprobada, verá aquí la lista de equipos asignados.

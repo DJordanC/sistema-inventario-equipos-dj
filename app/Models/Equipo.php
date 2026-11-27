@@ -36,4 +36,10 @@ class Equipo extends Model
     {
         return $this->hasOne(Asignacion::class)->whereNull('devuelto_en');
     }
+
+    // ESTA ES LA RELACIÓN QUE FALTABA
+    public function registrosEstado(): HasMany
+    {
+        return $this->hasMany(RegistroEstadoEquipo::class, 'equipo_id');
+    }
 }

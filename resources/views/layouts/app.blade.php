@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CAMBIO DE TÍTULO AQUÍ -->
-    <title>@yield('title', 'SIE - DJ') — Sistema de Inventarios</title>
+    <title>@yield('title', 'DIE - DJ') — Sistema de Inventarios</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
@@ -74,7 +73,7 @@
     <nav class="navbar navbar-expand-lg navbar-pastel mb-4">
         <div class="container-fluid px-3 px-md-4">
             <a class="navbar-brand" href="{{ route('dashboard') }}">
-                <i class="bi bi-pc-display"></i> SIE - DJ <!-- CAMBIO EN EL LOGO -->
+                <i class="bi bi-pc-display"></i> DIE - DJ
             </a>
             <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -183,6 +182,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            
             // --- SWEETALERT GLOBAL ---
             document.querySelectorAll('.form-eliminar').forEach(form => {
                 form.addEventListener('submit', function(e) {

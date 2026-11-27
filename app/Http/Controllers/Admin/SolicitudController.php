@@ -12,11 +12,17 @@ use Exception;
 
 class SolicitudController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Eager Loading para evitar N+1
-        $solicitudes = Solicitud::with(['usuario', 'oficina', 'categoria'])
-            ->latest()->paginate(10);
+        $query = Solicitud::with(['usuario', 'oficina', 'categoria']);
+
+        // Filtro por estado (Viene desde el Dashboard)
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        $solicitudes = $query->latest()->paginate(10)->withQueryString();
+        
         return view('admin.solicitudes.index', compact('solicitudes'));
     }
 
@@ -24,7 +30,6 @@ class SolicitudController extends Controller
     {
         $solicitud->load(['usuario', 'oficina', 'categoria']);
         
-        // Equipos disponibles de la categoría solicitada para el formulario de aprobación
         $equiposDisponibles = Equipo::where('categoria_id', $solicitud->categoria_id)
             ->where('estado', 'disponible')
             ->get();

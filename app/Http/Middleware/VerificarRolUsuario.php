@@ -12,7 +12,7 @@ class VerificarRolUsuario
         $usuario = $request->user();
 
         if (! $usuario || ! in_array($usuario->rol->value, $roles, true)) {
-            abort(403, 'Sorry bebe. No tienes permiso para acceder a esta sección.');
+           abort(403, 'Acceso Denegado. No tienes los privilegios necesarios para ver esta sección.');
         }
 
         return $next($request);

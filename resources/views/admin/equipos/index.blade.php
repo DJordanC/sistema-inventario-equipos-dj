@@ -4,7 +4,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold">Inventario de Equipos</h2>
-    <a href="{{ route('admin.equipos.create') }}" class="btn btn-primary shadow-sm">
+    <a href="{{ route('admin.equipos.create') }}" class="btn btn-primary shadow-sm btn-3d">
         <i class="bi bi-plus-lg"></i> Nuevo Equipo
     </a>
 </div>
@@ -25,11 +25,10 @@
     </div>
 @endif
 
-<!-- BARRA DE BÚSQUEDA Y FILTROS -->
-<div class="card shadow-sm border-0 mb-4">
+<!-- BARRA DE BÚSQUEDA (CON EFECTO 3D) -->
+<div class="card shadow-sm border-0 mb-4 card-3d">
     <div class="card-body">
         <form action="{{ route('admin.equipos.index') }}" method="GET" class="row g-3 align-items-center">
-            <!-- Conservar el filtro de estado si viene del dashboard -->
             @if(request('estado'))
                 <input type="hidden" name="estado" value="{{ request('estado') }}">
             @endif
@@ -37,21 +36,21 @@
             <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="search" class="form-control border-start-0" 
+                    <input type="text" name="search" class="form-control border-start-0 input-3d" 
                            placeholder="Buscar por código, marca o modelo..." value="{{ request('search') }}">
                 </div>
             </div>
             
             <div class="col-md-3">
-                <select name="per_page" class="form-select" onchange="this.form.submit()">
-                    <option value="5" {{ request('per_page') == 5 ? 'selected' : '' }}>5 registros por página</option>
+                <select name="per_page" class="form-select input-3d" onchange="this.form.submit()">
                     <option value="10" {{ request('per_page') == 10 ? 'selected' : '' }}>10 registros por página</option>
-                    <option value="20" {{ request('per_page') == 20 ? 'selected' : '' }}>20 registros por página</option>
+                    <option value="25" {{ request('per_page') == 25 ? 'selected' : '' }}>25 registros por página</option>
+                    <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50 registros por página</option>
                 </select>
             </div>
 
             <div class="col-md-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                <button type="submit" class="btn btn-primary w-100 btn-3d">Filtrar</button>
                 @if(request()->anyFilled(['search', 'per_page']))
                     <a href="{{ route('admin.equipos.index') }}" class="btn btn-outline-danger w-100">Limpiar</a>
                 @endif
@@ -60,7 +59,8 @@
     </div>
 </div>
 
-<div class="card shadow-sm border-0">
+<!-- TABLA (CON EFECTO 3D) -->
+<div class="card shadow-sm border-0 card-3d">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-hover mb-0 text-nowrap align-middle">
@@ -109,7 +109,6 @@
         </div>
     </div>
     
-    <!-- PAGINACIÓN Y CONTADOR EN ESPAÑOL -->
     @if($equipos->hasPages() || $equipos->total() > 0)
         <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-3">
             <small class="text-muted">

@@ -13,7 +13,7 @@
         </div>
 
         <!-- Tarjeta de Detalles del Equipo -->
-        <div class="card shadow-sm mb-4">
+        <div class="card shadow-sm mb-4 card-3d">
             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                 <h5 class="mb-0 fw-bold">Detalles del Equipo</h5>
                 <x-etiqueta :estado="$equipo->estado->value" />
@@ -97,7 +97,7 @@
         @endif
 
         <!-- NUEVO: Historial de Estados y Mantenimiento -->
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0 card-3d">
             <div class="card-header bg-white pt-3 pb-2 border-0">
                 <h5 class="fw-bold"><i class="bi bi-clock-history"></i> Historial de Estados</h5>
             </div>

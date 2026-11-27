@@ -2,10 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+
+// Importación de Controladores de Administrador
 use App\Http\Controllers\Admin\PanelController;
 use App\Http\Controllers\Admin\EquipoController;
 use App\Http\Controllers\Admin\SolicitudController as AdminSolicitudController;
+use App\Http\Controllers\Admin\UsuarioController;
+
+// Importación de Controladores de Solicitante
 use App\Http\Controllers\Solicitante\SolicitudController as SolicitanteSolicitudController;
+
+// Importación de Controladores Generales
 use App\Http\Controllers\ReporteController;
 
 /*
@@ -27,15 +34,14 @@ Route::get('/dashboard', function () {
     return redirect()->route('solicitante.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-// Ruta global para notificaciones
+
+// Ruta global para notificaciones (Campanita)
 Route::middleware(['auth'])->get('/api/notificaciones', function () {
     $user = auth()->user();
     
     if ($user->rol->value === 'administrador') {
-        // Admin: Cuenta las solicitudes pendientes
         $count = \App\Models\Solicitud::where('estado', 'pendiente')->count();
     } else {
-        // Solicitante: Cuenta sus solicitudes que ya fueron respondidas (aprobadas o rechazadas)
         $count = \App\Models\Solicitud::where('usuario_id', $user->id)
             ->whereIn('estado', ['aprobada', 'rechazada'])
             ->count();
@@ -58,20 +64,18 @@ Route::middleware(['auth', 'role:administrador'])->prefix('admin')->name('admin.
     // Módulo de Inventario (CRUD Completo)
     Route::resource('equipos', EquipoController::class);
 
+    // Módulo de Usuarios (Control de Perfiles)
+    Route::resource('usuarios', UsuarioController::class)->except(['show']);
+
     // Módulo de Solicitudes (Listado, Ver, Aprobar, Rechazar)
     Route::get('/solicitudes', [AdminSolicitudController::class, 'index'])->name('solicitudes.index');
     Route::get('/solicitudes/{solicitud}', [AdminSolicitudController::class, 'show'])->name('solicitudes.show');
     Route::post('/solicitudes/{solicitud}/aprobar', [AdminSolicitudController::class, 'aprobar'])->name('solicitudes.aprobar');
     Route::post('/solicitudes/{solicitud}/rechazar', [AdminSolicitudController::class, 'rechazar'])->name('solicitudes.rechazar');
-    Route::resource('equipos', EquipoController::class);
-    Route::resource('usuarios', \App\Http\Controllers\Admin\UsuarioController::class)->except(['show']);
-   
+
     // Módulo de Reportes
     Route::get('/reportes/asignaciones', [ReporteController::class, 'asignacionesPorOficina'])->name('reportes.asignaciones');
-    Route::get('/reportes/asignaciones', [\App\Http\Controllers\ReporteController::class, 'asignacionesPorOficina'])->name('reportes.asignaciones');
-    Route::get('/reportes/asignaciones/exportar-csv', [\App\Http\Controllers\ReporteController::class, 'exportarCSV'])->name('reportes.exportar.csv'); 
-
-
+    Route::get('/reportes/asignaciones/exportar-csv', [ReporteController::class, 'exportarCSV'])->name('reportes.exportar.csv');
     
 });
 
@@ -86,9 +90,15 @@ Route::middleware(['auth', 'role:solicitante'])->prefix('solicitante')->name('so
     // Dashboard
     Route::get('/dashboard', [\App\Http\Controllers\Solicitante\PanelController::class, 'index'])->name('dashboard');
 
-    // Módulo de Solicitudes (Solo crear y ver las propias)
+    // Módulo de Solicitudes
     Route::get('/solicitudes', [SolicitanteSolicitudController::class, 'index'])->name('solicitudes.index');
     Route::get('/solicitudes/crear', [SolicitanteSolicitudController::class, 'create'])->name('solicitudes.create');
-    Route::post('/solicitudes', [SolicitanteSolicitudController::class, 'store'])->name('solicitudes.store');    
+    Route::post('/solicitudes', [SolicitanteSolicitudController::class, 'store'])->name('solicitudes.store');
     Route::get('/solicitudes/{solicitud}', [SolicitanteSolicitudController::class, 'show'])->name('solicitudes.show');
-    });
+    
+    // Rutas de Edición y Eliminación 
+    Route::get('/solicitudes/{solicitud}/editar', [SolicitanteSolicitudController::class, 'edit'])->name('solicitudes.edit');
+    Route::put('/solicitudes/{solicitud}', [SolicitanteSolicitudController::class, 'update'])->name('solicitudes.update');
+    Route::delete('/solicitudes/{solicitud}', [SolicitanteSolicitudController::class, 'destroy'])->name('solicitudes.destroy');
+    
+});

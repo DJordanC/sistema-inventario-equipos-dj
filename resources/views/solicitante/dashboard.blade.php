@@ -23,12 +23,14 @@
     <!-- Fila 1: Tarjetas Estadísticas -->
     <div class="row mb-4">
         
-        <!-- Equipos Disponibles (Global) -->
+        <!-- Equipos Disponibles (Global) - No es enlace -->
         <div class="col-md-3">
-            <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #198754 !important;">
-                <div class="card-body">
-                    <h6 class="text-muted text-uppercase small fw-bold mb-1">Equipos Disponibles</h6>
-                    <h2 class="mb-0 text-success fw-bold">{{ $equiposDisponibles }}</h2>
+            <div class="tarjeta-enlace" style="cursor: default;">
+                <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #198754 !important;">
+                    <div class="card-body">
+                        <h6 class="text-muted text-uppercase small fw-bold mb-1">Equipos Disponibles</h6>
+                        <h2 class="mb-0 text-success fw-bold">{{ $equiposDisponibles }}</h2>
+                    </div>
                 </div>
             </div>
         </div>
@@ -45,9 +47,9 @@
             </a>
         </div>
         
-        <!-- Mis Pendientes -->
+        <!-- Mis Pendientes (Añadido el filtro ?estado=pendiente) -->
         <div class="col-md-3">
-            <a href="{{ route('solicitante.solicitudes.index') }}" class="tarjeta-enlace">
+            <a href="{{ route('solicitante.solicitudes.index', ['estado' => 'pendiente']) }}" class="tarjeta-enlace">
                 <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #ffc107 !important;">
                     <div class="card-body">
                         <h6 class="text-muted text-uppercase small fw-bold mb-1">Pendientes</h6>
@@ -57,9 +59,9 @@
             </a>
         </div>
         
-        <!-- Mis Aprobadas -->
+        <!-- Mis Aprobadas (Añadido el filtro ?estado=aprobada) -->
         <div class="col-md-3">
-            <a href="{{ route('solicitante.solicitudes.index') }}" class="tarjeta-enlace">
+            <a href="{{ route('solicitante.solicitudes.index', ['estado' => 'aprobada']) }}" class="tarjeta-enlace">
                 <div class="card shadow-sm border-0 h-100" style="border-left: 5px solid #0d6efd !important;">
                     <div class="card-body">
                         <h6 class="text-muted text-uppercase small fw-bold mb-1">Aprobadas</h6>
@@ -75,7 +77,7 @@
     <div class="row mb-4">
         <!-- Gráfico de Estado de Solicitudes -->
         <div class="col-md-4">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card card-3d border h-100">
                 <div class="card-header bg-white border-0 pt-4 pb-0">
                     <h6 class="fw-bold text-center">Estado de mis Solicitudes</h6>
                 </div>
@@ -89,10 +91,10 @@
 
         <!-- Últimas Solicitudes -->
         <div class="col-md-8">
-            <div class="card shadow-sm border-0 h-100">
+            <div class="card card-3d border-0 h-100">
                 <div class="card-header bg-white border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
                     <h6 class="fw-bold mb-0">Mis Últimos Pedidos</h6>
-                    <a href="{{ route('solicitante.solicitudes.create') }}" class="btn btn-sm btn-success">
+                    <a href="{{ route('solicitante.solicitudes.create') }}" class="btn btn-sm btn-success btn-3d">
                         <i class="bi bi-plus-lg"></i> Nueva Solicitud
                     </a>
                 </div>
@@ -101,19 +103,19 @@
                         <table class="table table-hover mb-0 align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Categoría</th>
+                                    <th class="ps-4">Categoría</th>
                                     <th>Cant.</th>
                                     <th>Fecha</th>
-                                    <th>Estado</th>
+                                    <th class="pe-4">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse($ultimasSolicitudes as $sol)
                                     <tr>
-                                        <td>{{ $sol->categoria->nombre }}</td>
+                                        <td class="ps-4">{{ $sol->categoria->nombre }}</td>
                                         <td class="fw-bold">{{ $sol->cantidad }}</td>
                                         <td>{{ $sol->created_at->diffForHumans() }}</td>
-                                        <td><x-etiqueta :estado="$sol->estado->value" /></td>
+                                        <td class="pe-4"><x-etiqueta :estado="$sol->estado->value" /></td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -137,7 +139,6 @@
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('graficaMisSolicitudes').getContext('2d');
         
-        // Solo mostramos el gráfico si hay solicitudes, sino mostramos un mensaje
         const datos = {!! json_encode($estadosData) !!};
         const total = datos.reduce((a, b) => a + b, 0);
 
@@ -158,19 +159,12 @@
                     responsive: true,
                     plugins: {
                         legend: { position: 'bottom' },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.parsed;
-                                }
-                            }
-                        }
+                        tooltip: { callbacks: { label: function(context) { return context.label + ': ' + context.parsed; } } }
                     },
                     cutout: '65%'
                 }
             });
         } else {
-            // Si no hay solicitudes, mostramos un texto
             document.getElementById('graficaMisSolicitudes').outerHTML = '<div class="text-center text-muted small py-5"><i class="bi bi-inbox fs-1 d-block mb-2"></i>No tienes solicitudes aún.</div>';
         }
     });

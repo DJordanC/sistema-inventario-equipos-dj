@@ -110,7 +110,7 @@
             if (nombreCategoria.includes('desktop')) return 'DES';
             if (nombreCategoria.includes('impresora')) return 'IMP';
             if (nombreCategoria.includes('monitor')) return 'MON';
-            return 'EQ';
+            return 'EQ'; 
         }
 
         function actualizarFormulario() {

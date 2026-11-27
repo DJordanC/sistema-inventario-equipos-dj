@@ -127,7 +127,7 @@ class EquipoController extends Controller
     public function destroy(Equipo $equipo)
     {
         $equipo->delete();
-        return redirect()->route('admin.equipos.index')->with('success', 'Equipo eliminado (borrado lógico).');
+        return redirect()->route('admin.equipos.index')->with('success', 'Equipo eliminado correctamente.');
     }
 
     private function asignarEquipo(Equipo $equipo, $oficinaId)

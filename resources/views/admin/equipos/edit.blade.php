@@ -4,7 +4,7 @@
 @section('content')
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm border-0 card-3d">
             <div class="card-header bg-white"><h5 class="mb-0">Editar Equipo: {{ $equipo->codigo_patrimonial }}</h5></div>
             <div class="card-body">
                 @if ($errors->any())
